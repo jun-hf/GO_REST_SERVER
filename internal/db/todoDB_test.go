@@ -7,9 +7,9 @@ import (
 
 func TestCreateAndGet(t *testing.T) {
 	tdDB := CreateTodoDB()
-	id := tdDB.createTodo("Hello world", nil, time.Now())
+	id := tdDB.CreateTodo("Hello world", nil, time.Now())
 
-	todo , err := tdDB.getTodo(id)
+	todo , err := tdDB.GetTodo(id)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -22,18 +22,18 @@ func TestCreateAndGet(t *testing.T) {
 		t.Errorf("got todo.Id=%d, id=%d", todo.Id, id)
 	}
 
-	allTodo := tdDB.getAllTodos()
+	allTodo := tdDB.GetAllTodos()
 	if len(allTodo) != 1 {
 		t.Errorf("got len(allTodo) = %d, need 1", len(allTodo))
 	}
 
-	_, err = tdDB.getTodo(id + 1)
+	_, err = tdDB.GetTodo(id + 1)
 	if err == nil {
 		t.Errorf("got nil, need error")
 	}
 
-	tdDB.createTodo("Hey", nil, time.Now())
-	allTodo2 := tdDB.getAllTodos()
+	tdDB.CreateTodo("Hey", nil, time.Now())
+	allTodo2 := tdDB.GetAllTodos()
 	if len(allTodo2) != 2 {
 		t.Errorf("got len(allTodo2) = %d, need 2", len(allTodo2))
 	}
@@ -41,30 +41,30 @@ func TestCreateAndGet(t *testing.T) {
 
 func TestDelete(t *testing.T) {
 	tdDB := CreateTodoDB()
-	id1 := tdDB.createTodo("Wash cloth", nil, time.Now())
-	id2 := tdDB.createTodo("Arrange book", nil, time.Now())
+	id1 := tdDB.CreateTodo("Wash cloth", nil, time.Now())
+	id2 := tdDB.CreateTodo("Arrange book", nil, time.Now())
 
-	if err := tdDB.deleteTodo(id1 + 100); err == nil {
+	if err := tdDB.DeleteTodo(id1 + 100); err == nil {
 		t.Fatalf("deleting invalid todo=%d resulting no error, need error", id1 +100)
 	}
-	if err := tdDB.deleteTodo(id1); err != nil {
+	if err := tdDB.DeleteTodo(id1); err != nil {
 		t.Fatal(err)
 	}
-	if err := tdDB.deleteTodo(id2); err != nil {
+	if err := tdDB.DeleteTodo(id2); err != nil {
 		t.Fatal(err)
 	}
 }
 
 func TestDeleteAll(t *testing.T) {
 	tdDB := CreateTodoDB()
-	tdDB.createTodo("Wash cloth", nil, time.Now())
-	tdDB.createTodo("Arrange book", nil, time.Now())
+	tdDB.CreateTodo("Wash cloth", nil, time.Now())
+	tdDB.CreateTodo("Arrange book", nil, time.Now())
 
-	if err := tdDB.deleteAllTodos(); err != nil {
+	if err := tdDB.DeleteAllTodos(); err != nil {
 		t.Fatal(err)
 	}
 
-	todo := tdDB.getAllTodos()
+	todo := tdDB.GetAllTodos()
 	if len(todo) != 0 {
 		t.Fatal("unable to delete all todo")
 	}
@@ -72,11 +72,11 @@ func TestDeleteAll(t *testing.T) {
 
 func TestGetTodoByTag(t *testing.T) {
 	tdDB := CreateTodoDB()
-	tdDB.createTodo("Wash plate", []string{"House"}, time.Now())
-	tdDB.createTodo("Build go server", []string{"Coding"}, time.Now())
-	tdDB.createTodo("Help Mom", []string{"House"}, time.Now())
-	tdDB.createTodo("Read Networking book", []string{"Coding"}, time.Now())
-	tdDB.createTodo("Setup wifi", []string{"House", "Coding"}, time.Now())
+	tdDB.CreateTodo("Wash plate", []string{"House"}, time.Now())
+	tdDB.CreateTodo("Build go server", []string{"Coding"}, time.Now())
+	tdDB.CreateTodo("Help Mom", []string{"House"}, time.Now())
+	tdDB.CreateTodo("Read Networking book", []string{"Coding"}, time.Now())
+	tdDB.CreateTodo("Setup wifi", []string{"House", "Coding"}, time.Now())
 
 	var tests = []struct {
 		tag string
@@ -91,6 +91,7 @@ func TestGetTodoByTag(t *testing.T) {
 			numberTagReturned := len(tdDB.GetTodoByTag(testCase.tag))
 			 if numberTagReturned != testCase.counts {
 				t.Errorf("got %v, need %v for %s", numberTagReturned, testCase.counts, testCase.tag)
+				t.Error(tdDB.todos)
 			 }
 		})
 	}
@@ -107,15 +108,15 @@ func TestGetTasksByDueDate(t *testing.T) {
 	}
 
 	tdDB := CreateTodoDB()
-	tdDB.createTodo("Wash plate", nil, parseDate("2022-Dec-02"))
-	tdDB.createTodo("Build go server", nil, parseDate("2023-Jan-12"))
-	tdDB.createTodo("Help Mom", nil, parseDate("2021-Jan-12"))
-	tdDB.createTodo("Read Networking book", nil, parseDate("2021-Jan-12"))
-	tdDB.createTodo("Setup wifi", nil, parseDate("2021-Jan-12"))
+	tdDB.CreateTodo("Wash plate", nil, parseDate("2022-Dec-02"))
+	tdDB.CreateTodo("Build go server", nil, parseDate("2023-Jan-12"))
+	tdDB.CreateTodo("Help Mom", nil, parseDate("2021-Jan-12"))
+	tdDB.CreateTodo("Read Networking book", nil, parseDate("2021-Jan-12"))
+	tdDB.CreateTodo("Setup wifi", nil, parseDate("2021-Jan-12"))
 
 	// retrieve a single todo
 	y, m, d := parseDate("2022-Dec-02").Date()
-	todoWashPlate := tdDB.getTodosByDueDate(y, m, d)
+	todoWashPlate := tdDB.GetTodosByDueDate(y, m, d)
 	if len(todoWashPlate) != 1 {
 		t.Errorf("retrieve error %v", todoWashPlate)
 	}
@@ -132,7 +133,7 @@ func TestGetTasksByDueDate(t *testing.T) {
 
 	for _, test := range(tests) {
 		t.Run(test.date.String(), func(t *testing.T) {
-			todoList := tdDB.getTodosByDueDate(test.date.Date())
+			todoList := tdDB.GetTodosByDueDate(test.date.Date())
 			if len(todoList) != test.counts {
 				t.Fatalf("Failed at %v, should have %v", test.date.String(), test.counts)
 			}

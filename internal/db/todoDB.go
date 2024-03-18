@@ -27,12 +27,12 @@ func CreateTodoDB() *TodoDB {
 	return td
 }
 
-func (td *TodoDB) createTodo(description string, tags []string, due time.Time) int {
+func (td *TodoDB) CreateTodo(description string, tags []string, due time.Time) int {
 	td.m.Lock()
 	defer td.m.Unlock()
 
 	id := td.nextId
-	todoTag := []string{}
+	todoTag := make([]string, len(tags))
 	copy(todoTag,tags)
 	newTodo := Todo{id, description, todoTag, due}
 
@@ -42,7 +42,7 @@ func (td *TodoDB) createTodo(description string, tags []string, due time.Time) i
 	return id
 }
 
-func (td *TodoDB) getTodo(id int) (Todo, error) {
+func (td *TodoDB) GetTodo(id int) (Todo, error) {
 	td.m.Lock()
 	defer td.m.Unlock()
 
@@ -54,7 +54,7 @@ func (td *TodoDB) getTodo(id int) (Todo, error) {
 	}
 }
 
-func (tdDB *TodoDB) deleteTodo (id int) error {
+func (tdDB *TodoDB) DeleteTodo(id int) error {
 	tdDB.m.Lock()
 	defer tdDB.m.Unlock()
 
@@ -65,7 +65,7 @@ func (tdDB *TodoDB) deleteTodo (id int) error {
 	return nil
 }
 
-func (tdDB *TodoDB) deleteAllTodos() error {
+func (tdDB *TodoDB) DeleteAllTodos() error {
 	tdDB.m.Lock()
 	defer tdDB.m.Unlock()
 
@@ -73,7 +73,7 @@ func (tdDB *TodoDB) deleteAllTodos() error {
 	return nil
 }
 
-func (tdDB *TodoDB) getAllTodos() []Todo {
+func (tdDB *TodoDB) GetAllTodos() []Todo {
 	tdDB.m.Lock()
 	defer tdDB.m.Unlock()
 
@@ -100,10 +100,10 @@ func (tdDB *TodoDB) GetTodoByTag(tag string) []Todo {
 				}
 			}
 		}
-		return todoList
+	return todoList
 }
 
-func (tdDB *TodoDB) getTodosByDueDate(year int, month time.Month, day int) []Todo {
+func (tdDB *TodoDB) GetTodosByDueDate(year int, month time.Month, day int) []Todo {
 	tdDB.m.Lock()
 	defer tdDB.m.Unlock()
 
