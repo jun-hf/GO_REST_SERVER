@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"strconv"
 	"time"
+	"os"
 	"github.com/jun-hf/GO_REST_SERVER/internal/db"
 )
 
@@ -180,5 +181,5 @@ func main() {
 	mux.HandleFunc("GET /tag/{tag}", todoServer.getByTagHandler)
 	mux.HandleFunc("GET /due/{year}/{month}/{day}", todoServer.getByDueDateHandler)
 
-	http.ListenAndServe(":3000", mux)
+	log.Fatal(http.ListenAndServe("localhost:"+os.Getenv("PORT"), mux))
 }
