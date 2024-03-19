@@ -94,6 +94,8 @@ func (tdServer *ToDoServer) dueHandler(c *gin.Context) {
 
 func main() {
 	router := gin.Default()
+	router.Use(gin.Logger())
+	router.Use(gin.Recovery())
 	server := createTodoServer()
 
 	router.POST("/todos", server.createTodoHandler)
